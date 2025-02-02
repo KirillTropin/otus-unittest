@@ -4,6 +4,7 @@ package otus.study.cashmachine.bank.service;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
+import org.mockito.ArgumentMatcher;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -30,9 +31,12 @@ public class AccountServiceTest {
         Account expectedAccount = new Account(0, BigDecimal.TEN);
         when(accountDao.saveAccount(new Account(0, BigDecimal.TEN))).thenReturn(expectedAccount);
         Account testAccount = accountServiceImpl.createAccount(BigDecimal.TEN);
+
         assertEquals(expectedAccount, testAccount);
-        AccountMatcher matcher = new AccountMatcher(expectedAccount);
-        matcher.matches(testAccount);
+
+        ArgumentMatcher<Account> matcher = account -> account != null && account.getId() == account.getId();
+
+        assertEquals(true, matcher.matches(testAccount));
     }
 
     @Test
@@ -42,6 +46,7 @@ public class AccountServiceTest {
         when(accountDao.saveAccount(accountArgumentCaptor.capture())).thenReturn(new Account(1L, BigDecimal.TEN));
         accountDao.saveAccount(new Account(1L, BigDecimal.TEN));
         verify(accountDao, only()).saveAccount(accountArgumentCaptor.capture());
+        assertEquals( BigDecimal.TEN, accountArgumentCaptor.getValue().getAmount());
    }
 
     @Test
